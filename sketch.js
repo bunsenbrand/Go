@@ -1,8 +1,12 @@
+// Website GO-Board application using the p5js library, bunsenbrand 2021
+
+// global variables
 
 var size = 1000;
 var border = 10;
 var boardsize = size - 2 * border;
 var interval = boardsize / 20;
+var stonesize = interval / 2;
 var a = border + interval;
 var b = border + boardsize - interval;
 var boardcol;
@@ -20,6 +24,8 @@ var turns = new Array();
 var turncount = -1;
 var spots = new Array(19);
 
+// filling spot array with empty spots
+
 for (i = 0; i < 19; i++) {
   spots[i] = new Array(19);
   for (j = 0; j < 19; j++) {
@@ -30,11 +36,12 @@ for (i = 0; i < 19; i++) {
 
 function setup() {
 
-  canv = createCanvas(1000, 1000);
+  canv = createCanvas(size, size);
 
   noCursor();
 
   // Standard Coloring
+
   boardcol = color(214,171,107);
   backcol = color(20,20,20);
   linecol = color(20,20,20);
@@ -42,16 +49,13 @@ function setup() {
   acol = color(255,255,255);
   bcol = color(0,0,0);
 
+  // HTML elements
+
   canv.style("display","block");
   canv.style("margin","0 auto");
   canv.style("marginTop","100px");
 
-  createP("");
-  createP("");
-  createP("");
-  createP("");
-  
-  sel = createSelect();
+  sel = createSelect(); // selects Board style
   sel.style("display","block");
   sel.style("margin","0 auto");
   sel.option("Standard");
@@ -59,9 +63,15 @@ function setup() {
   sel.option("Matrix");
   sel.changed(styleUpdate);
 
+  sli = createSlider(1.2,4.0,2.0,0.2); // adjusts stone size
+  sli.style("display","block");
+  sli.style("margin","0 auto");
+
 }
 
 function styleUpdate() {
+
+  // adjust variales according to chosen style
 
   if (sel.value() == "Standard") {
     boardcol = color(214,171,107);
@@ -94,6 +104,8 @@ function styleUpdate() {
 
 function draw() {
 
+  // background
+
   document.body.style.backgroundColor = backcol;
   background(backcol);
 
@@ -103,10 +115,6 @@ function draw() {
   square(border, border, boardsize);
 
   // lines
-
-  fill(0);
-
-  push();
 
   for (i = 0; i < 19; i++) {
     stroke(linecol);
@@ -118,15 +126,9 @@ function draw() {
     line(a + i * interval, a, a + i * interval, b);
   }
 
-  pop();
+  // displaying stones on board
 
-  // positioning
-
-  posx = int(round(map(mouseX, a, b, 0, 18, 18 * interval)));
-  posy = int(round(map(mouseY, a, b, 0, 18, 18 * interval)));
-
-
-  // displaying stones
+  stonesize = interval / sli.value();
 
   for (i = 0; i < 19; i++) {
     for (j = 0; j < 19; j++) {
@@ -138,7 +140,7 @@ function draw() {
 
         fill(acol);
         stroke(stonestroke);
-        circle(x,y, interval / 2)
+        circle(x,y, stonesize)
 
         if (sel.value() == "Matrix") {
           fill(linecol);
@@ -151,7 +153,7 @@ function draw() {
 
         fill(bcol);
         stroke(stonestroke);
-        circle(x,y, interval / 2);
+        circle(x,y, stonesize);
 
         if (sel.value() == "Matrix") {
           fill(linecol);
@@ -163,11 +165,13 @@ function draw() {
     }
   }
 
+  // displaying stone in hand
+
   if(turn == 1) {
 
       fill(acol);
       stroke(stonestroke);
-      circle(mouseX,mouseY, interval / 2);
+      circle(mouseX,mouseY, stonesize);
 
       if (sel.value() == "Matrix") {
         fill(linecol);
@@ -179,7 +183,7 @@ function draw() {
 
       fill(bcol);
       stroke(stonestroke);
-      circle(mouseX,mouseY, interval / 2);
+      circle(mouseX,mouseY, stonesize);
 
       if (sel.value() == "Matrix") {
         fill(linecol);
@@ -193,6 +197,13 @@ function mouseClicked() {
 
   if(mouseX >= border && mouseX <= (boardsize + border) &&
       mouseY >= border && mouseY <= (boardsize + border)) {
+
+      // finding nearest spot (posx, posy) to cursor
+
+      posx = int(round(map(mouseX, a, b, 0, 18, 18 * interval)));
+      posy = int(round(map(mouseY, a, b, 0, 18, 18 * interval)));
+
+      // placing and edjusting turn array
 
       if(spots[posx][posy] == 0) {
 
@@ -219,6 +230,12 @@ function keyPressed() {
 
   // DELETE
   if(keyCode == 8) {
+
+    // finding nearest spot (posx, posy) to cursor
+
+    posx = int(round(map(mouseX, a, b, 0, 18, 18 * interval)));
+    posy = int(round(map(mouseY, a, b, 0, 18, 18 * interval)));
+    
     spots[posx][posy] = 0;
   }
 
